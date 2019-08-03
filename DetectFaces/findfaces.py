@@ -6,7 +6,8 @@ from PIL import Image, ImageDraw, ImageFont
 import cognitive_face as CF
 import time
 import logging
-import operator, json
+import operator
+import json
 
 try:
     import picamera
@@ -31,6 +32,9 @@ def takePhoto():
     resultPath = '/home/pi/camera/detectface/image.jpg'
     try:
         with picamera.PiCamera() as camera:
+            camera.resolution = (640, 480)
+            camera.framerate = 90
+            camera.video_stabilization = True
             camera.start_preview()
             time.sleep(1)
             camera.capture(resultPath)
@@ -103,7 +107,8 @@ def getAge(faceDictionary):
 def writeInfo(age, gender, emotion, width, draw, x, y):
     text = str(age) + ' years old ' + gender + ' mood:' + emotion
     lines = []
-    #font = ImageFont.truetype('SFNSText.ttf', 8)  # Change font for OS
+    # Change font for OS
+    # font = ImageFont.truetype('SFNSText.ttf', 8)  
     font = ImageFont.load_default()
     if font.getsize(text)[0] <= width:
         lines.append(text)
@@ -161,7 +166,8 @@ def main():
             if len(faces) == 0:
                 logging.warning('No photo is taken...')
                 sys.exit(12)
-            #font = ImageFont.truetype('SFNSText.ttf', 8)  # Change font for OS
+            # Change font for OS
+            # font = ImageFont.truetype('SFNSText.ttf', 8)
             font = ImageFont.load_default()
             for face in faces:
                 coordinate = getRectangle(face)
