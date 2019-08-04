@@ -107,9 +107,9 @@ def printinfo(draw):
     MemUsage = subprocess.check_output(memcmd, shell=True)
     Disk = subprocess.check_output(diskcmd, shell=True)
 
-    draw.text((2, 2 + 8),     str(CPU), font=font, fill=255)
-    draw.text((2, 2 + 16),    str(MemUsage),  font=font, fill=255)
-    draw.text((2, 2 + 25),    str(Disk),  font=font, fill=255)
+    draw.text((2, 2 + 8),     str(CPU), fill=1)
+    draw.text((2, 2 + 16),    str(MemUsage), fill=1)
+    draw.text((2, 2 + 25),    str(Disk), fill=1)
 
 @app.route('/',methods=['POST'])
 def receivemessage():
@@ -133,14 +133,13 @@ def server():
     global message
     app.run(host='0.0.0.0')
 
-font = createfont('code2000.ttf',14)
+font = createfont('',14)
 
 def main():
     device = get_device()
-    regulator = framerate_regulator(fps=1)
     try:
         while True:
-            with canvas(device) as draw, regulator:
+            with canvas(device) as draw:
                 if GPIO.input(KEY1_PIN) == False:
                     device.clear()
                 elif GPIO.input(KEY2_PIN) == False:
