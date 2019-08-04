@@ -1,4 +1,4 @@
-# Miyop.IoT
+# BrickPi.Windows10
 
 Another Raspberry Pi3 and BrickPi3 project with Windows 10 Iot Core. The project demostrates simple video recording feature with some LEGO Mindstorms sensors. Just for this project NXT Touch sensor is used. It is used as start/stop video recording.
 
