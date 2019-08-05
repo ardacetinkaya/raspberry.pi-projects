@@ -141,13 +141,13 @@ def main():
         while True:
             with canvas(device) as draw:
                 if GPIO.input(KEY1_PIN) == False:
-                    device.clear()
+                    run(device, draw)
                 elif GPIO.input(KEY2_PIN) == False:
                     printlogo(device)
                 elif GPIO.input(KEY3_PIN) == False:
                     printinfo(draw)
                 else:
-                    run(device, draw)
+                    device.clear()
 
     except Exception, e:
         print("ERROR: " + str(e))
