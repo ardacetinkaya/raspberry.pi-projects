@@ -41,6 +41,7 @@ GPIO.setup(KEY2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(KEY3_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 message="Hello World!"
+action="clear"
 
 def createfont(name, size):
     if not name.strip():
@@ -69,7 +70,8 @@ def run(device, draw):
 
     # draw.rectangle((100, top + 40, 100 + shape_width, bottom), outline="blue", fill=0)
 
-    draw.text((2 * padding, top), str(message),font=font,fill=1)
+    if str(action)=="print":
+        draw.text((2 * padding, top), str(message),font=font,fill=1)      
 
     ipcmd = "hostname -I | cut -d\' \' -f1"
     IP = subprocess.check_output(ipcmd, shell=True)
@@ -114,14 +116,15 @@ def printinfo(draw):
 @app.route('/',methods=['POST'])
 def receivemessage():
     global message
+    global action
     content = {"message": "OK"}
     try:
         data = json.loads(request.data)
-        if len(data["message"]) > 15:
+        if len(data["Message"]) > 15:
             content = {"message":"Too long messasge"}
             return make_response(jsonify(content), 400)
-        message = data["message"]
-
+        message = data["Message"]
+        action = data["Action"]
     except Exception, e:
         print("ERROR: "+ str(e))
         content = {"message": "ERROR"+str(e)}
@@ -146,8 +149,11 @@ def main():
                     printlogo(device)
                 elif GPIO.input(KEY3_PIN) == False:
                     printinfo(draw)
+                elif str(action)=="print":
+                    run(device,draw)
                 else:
-                    device.clear()
+                    if str(action)=="clear":
+                        device.clear()
 
     except Exception, e:
         print("ERROR: " + str(e))
