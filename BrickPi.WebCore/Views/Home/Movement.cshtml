@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Movements";
+}
+@section css {
+    <link href="@Url.Content("~/css/keyboard.css")" rel="stylesheet"/>
+}
+@section Scripts{
+    <script src="@Url.Content("~/js/capture.js")"></script>
+}
+<h3>@ViewData["Message"]</h3>
+<span>
+<p>You can move "Miyop Robot" and capture some images. These captures images can be send to cloud platforms to learn about enviroment.New functions and features can be added easly...</p>
+</span>
+
+<div id="keyboard">
+		<ul id="bottomrow">
+            <ol>
+            	<li><a href="#" class="key c37" id="left"><span>&#x25C0;&#xFE0E;</span></a></li>
+                <li>
+                	<a href="#" class="key c38" id="up"><span>&#x25B2;&#xFE0E;</span></a>
+                	<a href="#" class="key c40" id="down"><span>&#x25BC;&#xFE0E;</span></a>
+                </li>
+            	<li><a href="#" class="key c39" id="right"><span>&#x25B6;&#xFE0E;</span></a></li>
+                <li><a href="#" class="key option" id="optionright"><span>Stop</span></a></li>
+                <li><a href="#" class="key commandright" id="capturestart"><span>Capture Start</span></a></li>
+                <li><a href="#" class="key commandright" id="capturestop"><span>Capture Stop</span></a></li>
+            </ol>
+        </ul>
+</div>
+<div class="clearfix"></div>
+
+<div id="imageCapture">
+    <capture :last="date"></capture>
+</div>
+
+
