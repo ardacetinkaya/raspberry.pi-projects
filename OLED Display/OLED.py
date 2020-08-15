@@ -30,6 +30,19 @@ KEY1_PIN = 21
 KEY2_PIN = 20
 KEY3_PIN = 16
 
+message="Hello World!"
+action="clear"
+ison=0
+
+def isOpened(value):
+    global ison
+    if value ==0:
+        ison=1
+        print("on")
+    else:
+        ison=0
+        print("off")
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(KEY_UP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(KEY_DOWN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -40,8 +53,7 @@ GPIO.setup(KEY1_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(KEY2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(KEY3_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-message="Hello World!"
-action="clear"
+GPIO.add_event_detect(KEY_PRESS_PIN,GPIO.FALLING,callback=lambda x: isOpened(ison))
 
 def createfont(name, size):
     if not name.strip():
@@ -57,30 +69,38 @@ def run(device, draw):
     top = padding
     bottom = device.height - padding - 1
     x = padding + 10
-    # 12,2,32,61
-    # 34,42,54,61
-    # 56,42,54,61
-    # draw.rectangle((x, top, x + shape_width, bottom), outline="blue", fill=1)
-    # x += shape_width + padding
-    # draw.rectangle((100, top, 100 + shape_width, bottom - 40), outline="blue", fill=0)
-    # x += shape_width + padding
-
-    # draw.rectangle((100, top + 20, 100 + shape_width,bottom - 20), outline="blue", fill=0)
-    # x += shape_width + padding
-
-    # draw.rectangle((100, top + 40, 100 + shape_width, bottom), outline="blue", fill=0)
-
-    if str(action)=="print":
-        draw.text((2 * padding, top), str(message),font=font,fill=1)      
 
     ipcmd = "hostname -I | cut -d\' \' -f1"
+    cpucmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
+    memcmd = "free -m | awk 'NR==2{printf \"Mem: %s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
+    diskcmd = "df -h | awk '$NF==\"/\"{printf \"Disk: %d/%dGB %s\", $3,$2,$5}'"
+
     IP = subprocess.check_output(ipcmd, shell=True)
+    CPU = subprocess.check_output(cpucmd, shell=True)
+    MemUsage = subprocess.check_output(memcmd, shell=True)
+    Disk = subprocess.check_output(diskcmd, shell=True)
+    
+    draw.text((padding, bottom-60),  str(CPU), fill=1)
+    draw.text((padding, bottom-50),  str(MemUsage), fill=1)
+    draw.text((padding, bottom-40),  str(Disk), fill=1)
     draw.text((padding, bottom-30),  "IP:" + str(IP), fill=1)
 
     now = datetime.datetime.now()
     draw.text((padding, bottom - 20), now.strftime("%d.%m.%Y"), fill=1)
     draw.text((padding, bottom - 10), now.strftime("%H:%M:%S"), fill=1)
     time.sleep(0.1)
+
+    draw.rectangle(device.bounding_box, outline="blue")
+
+def empty(device, draw):
+
+    padding = 2
+    shape_width = 20
+    top = padding
+    bottom = device.height - padding - 1
+
+    if str(action)=="print":
+        draw.text((2 * padding, top), str(message),font=font,fill=1)      
 
     draw.rectangle(device.bounding_box, outline="blue")
 
@@ -139,12 +159,15 @@ def server():
 font = createfont('',14)
 
 def main():
+    global ison
     device = get_device()
     try:
         while True:
             with canvas(device) as draw:
-                if GPIO.input(KEY1_PIN) == False:
+                if ison==1:
                     run(device, draw)
+                elif GPIO.input(KEY1_PIN) == False:
+                    empty(device,draw)
                 elif GPIO.input(KEY2_PIN) == False:
                     printlogo(device)
                 elif GPIO.input(KEY3_PIN) == False:
@@ -164,3 +187,4 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         pass
+
